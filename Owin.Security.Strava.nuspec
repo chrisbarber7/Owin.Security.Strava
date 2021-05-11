@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>StravaOAuth2</id>
+    <version>1.3.1</version>
+    <title>Strava OAuth2 Authentication OWIN</title>
+    <description>OAuth Provider For Strava.  Forked from https://github.com/Johnny2Shoes/Owin.Security.Strava </description> 
+    <authors>Chris Barber</authors>
+    <owners>Chris Barber</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/chrisbarber7/Owin.Security.Strava</projectUrl>
+    <releaseNotes>Amended login scope</releaseNotes>
+    <copyright>Copyright 2021</copyright>
+    <tags></tags>
+  </metadata>
+  <!--<files>
+    <file src="bin/debug/Owin.Security.Strava.dll" target="lib/net452/Owin.Security.Strava.dll"></file>
+  </files>-->
+</package>
