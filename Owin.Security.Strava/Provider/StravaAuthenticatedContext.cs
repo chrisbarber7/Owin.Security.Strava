@@ -38,7 +38,7 @@ namespace Owin.Security.Strava
             PhotoMedium = TryGetValue(user, "profile_medium");
             FollowerCount = TryGetValue(user, "follower_count");
             FriendCount = TryGetValue(user, "friend_count");
-            Email = TryGetValue(user, "email");
+            //Email = TryGetValue(user, "email");
             Premium = TryGetValue(user, "premium");
             CreatedAt = TryGetValue(user, "created_at");
             UpdatedAt = TryGetValue(user, "updated_at");
@@ -55,7 +55,7 @@ namespace Owin.Security.Strava
         public string Name { get; private set; }
         public string Gender { get; private set; }
         public string HomeCity { get; private set; }
-        public string Email { get; private set; }
+        //public string Email { get; private set; }
         public string Link { get; private set; }
         public string HomeState { get; private set; }
         public string HomeCountry { get; private set; }

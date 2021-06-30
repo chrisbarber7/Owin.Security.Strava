@@ -65,6 +65,8 @@
     <Compile Include="Provider\StravaAuthenticationProvider.cs" />
     <Compile Include="Provider\StravaReturnEndpointContext.cs" />
     <Compile Include="Provider\IStravaAuthenticationProvider.cs" />
+    <Compile Include="TokenRefresh\StravaTokenRefresh.cs" />
+    <Compile Include="TokenRefresh\Token.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

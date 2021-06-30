@@ -6,6 +6,7 @@ using Microsoft.Owin.Security.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Owin.Security.Strava
 {
     public class StravaAuthenticationHandler : AuthenticationHandler<StravaAuthenticationOptions>
     {
-        private const string TokenEndpoint = "https://www.strava.com/oauth/token";
+        public const string TokenEndpoint = "https://www.strava.com/oauth/token";
         private const string GraphApiEndpoint = "https://api.foursquare.com/v2/users/self";
 
         private const string XmlSchemaString = "http://www.w3.org/2001/XMLSchema#string";
@@ -74,9 +75,12 @@ namespace Owin.Security.Strava
                     new KeyValuePair<string, string>("client_id", Options.ClientId),
                     new KeyValuePair<string, string>("client_secret", Options.ClientSecret),
                     new KeyValuePair<string, string>("code", code),
+                    new KeyValuePair<string, string>("grant_type", "authorization_code")
                 };
 
                 FormUrlEncodedContent requestContent = new FormUrlEncodedContent(tokenRequestParameters);
+
+                System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
                 HttpResponseMessage response = await _httpClient.PostAsync(TokenEndpoint, requestContent, Request.CallCancelled);
                 response.EnsureSuccessStatusCode();
@@ -84,6 +88,9 @@ namespace Owin.Security.Strava
 
                 JObject oauth2Token = JObject.Parse(oauthTokenResponse);
                 string accessToken = oauth2Token["access_token"].Value<string>();
+                string refreshToken = oauth2Token["refresh_token"].Value<string>();
+                string expiresAt = oauth2Token["expires_at"].Value<string>();
+                string expiresIn = oauth2Token["expires_in"].Value<string>();
 
                 if (string.IsNullOrWhiteSpace(accessToken))
                 {
@@ -100,16 +107,25 @@ namespace Owin.Security.Strava
                         new Claim(ClaimTypes.NameIdentifier, context.Id, XmlSchemaString, Options.AuthenticationType),
                         new Claim(ClaimTypes.Name, context.Name, XmlSchemaString, Options.AuthenticationType),
                        // new Claim(ClaimTypes.UserData, user.ToString(), XmlSchemaString, Options.AuthenticationType),
-                        new Claim("urn:strava:accesstoken", accessToken, XmlSchemaString, Options.AuthenticationType)
+                        new Claim("urn:strava:accesstoken", accessToken, XmlSchemaString, Options.AuthenticationType),
+                        new Claim("urn:strava:refreshtoken", refreshToken, XmlSchemaString, Options.AuthenticationType),
+                        new Claim("urn:strava:expiresat", expiresAt, XmlSchemaString, Options.AuthenticationType),
+                        new Claim("urn:strava:expiresin", expiresIn, XmlSchemaString, Options.AuthenticationType),
+
                     },
                     Options.AuthenticationType,
                     ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
 
-                if (!string.IsNullOrWhiteSpace(context.Email))
-                {
-                    context.Identity.AddClaim(new Claim(ClaimTypes.Email, context.Email, XmlSchemaString, Options.AuthenticationType));
-                }
+
+                //if (!string.IsNullOrWhiteSpace(context.Email))
+                //{
+                //    context.Identity.AddClaim(new Claim(ClaimTypes.Email, context.Email, XmlSchemaString, Options.AuthenticationType));
+                //}
+                //else
+                //{
+                    context.Identity.AddClaim(new Claim(ClaimTypes.Email, $"{oauth2Token["athlete"]["id"].ToString()}@fitnessviewer.co.uk", XmlSchemaString, Options.AuthenticationType));
+                //}
                 
                 await Options.Provider.Authenticated(context);
 
@@ -164,6 +180,7 @@ namespace Owin.Security.Strava
                     "https://www.strava.com/oauth/authorize" +
                         "?client_id=" + Uri.EscapeDataString(Options.ClientId) +
                         "&response_type=code" +
+                        "&approval_prompt=auto" +
                         "&redirect_uri=" + Uri.EscapeDataString(redirectUri) +
                         "&scope=" + Uri.EscapeDataString(scope) +
                         "&state=" + Uri.EscapeDataString(state);

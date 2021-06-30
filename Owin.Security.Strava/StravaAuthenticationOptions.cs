@@ -16,7 +16,7 @@ namespace Owin.Security.Strava
             CallbackPath = "/signin-strava";
             AuthenticationMode = AuthenticationMode.Passive;
             BackchannelTimeout = TimeSpan.FromSeconds(60);
-            Scope = new List<string>  () { "activity:read_all" };
+            Scope = new List<string>  () { "activity:read_all,profile:read_all" };
         }
 
         public string ClientId { get; set; }
